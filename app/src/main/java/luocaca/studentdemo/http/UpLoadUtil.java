@@ -23,10 +23,10 @@ import java.util.Map;
 public class UpLoadUtil {
 
 
-    public static final String hostLocal = "http://192.168.0.13:80/hello";
+    public static final String hostLocal = "http://192.168.0.13:81/hello-ssm";
     public static final String hostRemote = "http://www.luocaca.cn/hello-ssm";
 
-    public static void testUploadImage(String fileName, String host, Context activity) {
+    public static String testUploadImage(String fileName, String host, Context activity) {
 
         String url = host + "/book/image";
 
@@ -71,6 +71,7 @@ public class UpLoadUtil {
         String ret = formUpload(url, textMap, fileMap, contentType);
 
         System.out.println(ret);
+        return  ret ;
 
 
     }

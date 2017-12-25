@@ -254,7 +254,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .subscribe(new Consumer<String>() {
                             @Override
                             public void accept(String s) throws Exception {
-                                UpLoadUtil.testUploadImage(s, host, MainActivity.this);
+                              String result =   UpLoadUtil.testUploadImage(s, host, MainActivity.this);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        et_detail.setText(result);
+                                    }
+                                });
 
                             }
                         });
@@ -266,13 +272,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "上传图片");
                 Luban.compress(MainActivity.this, new File(path))
                         .putGear(Luban.THIRD_GEAR)      // set the compress mode, default is : THIRD_GEAR
-                      .setCompressFormat(Bitmap.CompressFormat.WEBP)
+                        .setCompressFormat(Bitmap.CompressFormat.WEBP)
                         .asObservable()
                         .observeOn(Schedulers.io())
                         .subscribe(new Consumer<File>() {
                             @Override
                             public void accept(File file) throws Exception {
-                                UpLoadUtil.testUploadImage(file.getAbsolutePath(), host, MainActivity.this);
+                               String result = UpLoadUtil.testUploadImage(file.getAbsolutePath(), host, MainActivity.this);
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        et_detail.setText(result);
+                                    }
+                                });
+
                             }
                         })
 
