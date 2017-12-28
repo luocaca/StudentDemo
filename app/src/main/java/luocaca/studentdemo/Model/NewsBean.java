@@ -5,6 +5,8 @@ import org.itheima.recycler.bean.BasePageBean;
 import java.util.List;
 
 /**
+ * https://github.com/open-android/RetrofitUtils/blob/master/retrofitutils/src/main/java/com/itheima/retrofitutils/HttpHelper.java
+ * https://github.com/open-android/BaseRecyclerAndAdapter
  * Created by Administrator on 2017/12/28 0028.
  */
 
@@ -24,6 +26,7 @@ public class NewsBean extends BasePageBean<NewsBean.Resultbean.Itemsbean> {
 
     @Override
     public List<NewsBean.Resultbean.Itemsbean> getItemDatas() {
+//        return getItemDatas();
         return result.items;
     }
 
