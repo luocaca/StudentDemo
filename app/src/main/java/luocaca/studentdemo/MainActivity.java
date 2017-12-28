@@ -12,9 +12,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -32,17 +29,11 @@ import io.reactivex.schedulers.Schedulers;
 import luocaca.studentdemo.Model.Book;
 import luocaca.studentdemo.Model.RequestInterceptor;
 import luocaca.studentdemo.Reponsity.API;
-import luocaca.studentdemo.Reponsity.ServiceAdd;
 import luocaca.studentdemo.http.FileUtils;
 import luocaca.studentdemo.http.UpLoadUtil;
 import me.shaohui.advancedluban.Luban;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -254,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .subscribe(new Consumer<String>() {
                             @Override
                             public void accept(String s) throws Exception {
-                              String result =   UpLoadUtil.testUploadImage(s, host, MainActivity.this);
+                                String result = UpLoadUtil.testUploadImage(s, host, MainActivity.this);
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -278,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .subscribe(new Consumer<File>() {
                             @Override
                             public void accept(File file) throws Exception {
-                               String result = UpLoadUtil.testUploadImage(file.getAbsolutePath(), host, MainActivity.this);
+                                String result = UpLoadUtil.testUploadImage(file.getAbsolutePath(), host, MainActivity.this);
 
                                 runOnUiThread(new Runnable() {
                                     @Override
@@ -347,39 +338,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 //                submit();
 
-                Gson gson = new GsonBuilder()
-                        .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-                        .create();
+                TestRecycleViewActivity.start(this);
 
 
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(API.BASE_URL)
-                        .addConverterFactory(GsonConverterFactory.create(gson))
-                        .client(getOkHttpClient())
-                        .build();
-
-
-                ServiceAdd serviceAdd = retrofit.create(ServiceAdd.class);
-
-
-                Call<String> call = serviceAdd.requestAdd(
-                        BookConsermer().book_id,
-                        BookConsermer().number,
-                        BookConsermer().detail,
-                        BookConsermer().name);
-                call.enqueue(new Callback<String>() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        int statusCode = response.code();
-                        Log.i(TAG, "onResponse: " + response.body() + "   code = " + statusCode + " call=" + call);
-                    }
-
-
-                    @Override
-                    public void onFailure(Call call, Throwable t) {
-                        Log.e(TAG, "onResponse: " + t.getMessage());
-                    }
-                });
+//                Gson gson = new GsonBuilder()
+//                        .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+//                        .create();
+//
+//
+//                Retrofit retrofit = new Retrofit.Builder()
+//                        .baseUrl(API.BASE_URL)
+//                        .addConverterFactory(GsonConverterFactory.create(gson))
+//                        .client(getOkHttpClient())
+//                        .build();
+//
+//
+//                ServiceAdd serviceAdd = retrofit.create(ServiceAdd.class);
+//
+//
+//                Call<String> call = serviceAdd.requestAdd(
+//                        BookConsermer().book_id,
+//                        BookConsermer().number,
+//                        BookConsermer().detail,
+//                        BookConsermer().name);
+//                call.enqueue(new Callback<String>() {
+//                    @Override
+//                    public void onResponse(Call<String> call, Response<String> response) {
+//                        int statusCode = response.code();
+//                        Log.i(TAG, "onResponse: " + response.body() + "   code = " + statusCode + " call=" + call);
+//                    }
+//
+//
+//                    @Override
+//                    public void onFailure(Call call, Throwable t) {
+//                        Log.e(TAG, "onResponse: " + t.getMessage());
+//                    }
+//                });
 
                 break;
         }
