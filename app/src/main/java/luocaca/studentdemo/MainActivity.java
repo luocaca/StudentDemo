@@ -1,9 +1,16 @@
 package luocaca.studentdemo;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.GpsStatus;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -11,6 +18,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -22,6 +32,8 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
@@ -29,8 +41,12 @@ import io.reactivex.schedulers.Schedulers;
 import luocaca.studentdemo.Model.Book;
 import luocaca.studentdemo.Model.RequestInterceptor;
 import luocaca.studentdemo.Reponsity.API;
+import luocaca.studentdemo.Utils.AMapUtils;
+import luocaca.studentdemo.Utils.LocationUtils_new;
 import luocaca.studentdemo.http.FileUtils;
 import luocaca.studentdemo.http.UpLoadUtil;
+import luocaca.studentdemo.loaction.EasyPermissionsEx;
+import luocaca.studentdemo.loaction.LocationHelper;
 import me.shaohui.advancedluban.Luban;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -46,16 +62,92 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button button;
     private Button button1;
 
+
+    private Button galary;
+
     private Book mBook;
     private String path;
 
     String host = "";
+
+    private String[] mNeedPermissionsList = new String[]{
+            Manifest.permission.ACCESS_COARSE_LOCATION
+            , Manifest.permission.READ_EXTERNAL_STORAGE
+            , Manifest.permission.WRITE_EXTERNAL_STORAGE
+            , Manifest.permission.ACCESS_FINE_LOCATION
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+
+
+//        requestLoaction(this);
+//        ActivityCompat.requestPermissions(this, new String[]{
+//                Manifest.permission.ACCESS_COARSE_LOCATION
+//                , Manifest.permission.READ_EXTERNAL_STORAGE
+//                , Manifest.permission.WRITE_EXTERNAL_STORAGE
+//                , Manifest.permission.ACCESS_FINE_LOCATION
+//        }, 100);
+
+
+        // 使用了 EasyPermissionsEx 类来管理动态权限配置
+        if (EasyPermissionsEx.hasPermissions(this, mNeedPermissionsList)) {
+//            initLocation(this);
+            AMapUtils.getInstance(getApplicationContext())
+                    .setLocationListener(new AMapLocationListener() {
+                        @Override
+                        public void onLocationChanged(AMapLocation aMapLocation) {
+                            et_detail.append(aMapLocation.getLocationType() + "\n");
+                            et_detail.append(aMapLocation.getLatitude() + "\n");
+                            et_detail.append(aMapLocation.getLongitude() + "\n");
+                            et_detail.append(aMapLocation.getAccuracy() + "\n");
+                            et_detail.append(aMapLocation.getAddress() + "\n");
+                            et_detail.append(aMapLocation.getCountry() + "\n");
+                            et_detail.append(aMapLocation.getProvince() + "\n");
+                            et_detail.append(aMapLocation.getCity() + "\n");
+                            et_detail.append(aMapLocation.getDistrict() + "\n");
+                            et_detail.append(aMapLocation.getStreet() + "\n");
+                            et_detail.append(aMapLocation.getStreetNum() + "\n");
+                            et_detail.append(aMapLocation.getCityCode() + "\n");
+                            et_detail.append(aMapLocation.getAdCode() + "\n");
+                            et_detail.append(aMapLocation.getAoiName() + "\n");
+                            et_detail.append(aMapLocation.getBuildingId() + "\n");
+                            et_detail.append(aMapLocation.getFloor() + "\n");
+                            et_detail.append(aMapLocation.getGpsAccuracyStatus() + "\n");
+                            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            Date date = new Date(aMapLocation.getTime());
+                            df.format(date);
+                            et_detail.append(df.toLocalizedPattern());
+                            // Log.i("onLocation", aMapLocation.getAddress() + " thread = " + Thread.currentThread().getName());
+//                            Log.i("onLocation", aMapLocation.getCity());
+                        }
+                    })
+                    .requestLocationUpdates();
+
+        } else {
+            EasyPermissionsEx.requestPermissions(this, "需要定位权限来获取当地天气信息", 1, mNeedPermissionsList);
+        }
+//
+//        LocationUtils.getInstance(getApplicationContext())
+//                .requestLocationUpdates(new LocationUtils.CLocationListener() {
+//
+//                    @Override
+//                    protected void finalize() throws Throwable {
+//                        super.finalize();
+//
+//                        Log.w(TAG, "finalize: ");
+//                    }
+//
+//                    @Override
+//                    public void onLocationChanged(Location location) {
+//                        Log.d(TAG, "onLocationChanged: \n" + location.toString());
+//                        Toast.makeText(MainActivity.this, "" + location.toString(), Toast.LENGTH_SHORT).show();
+//                    }
+//                });
 
 
     }
@@ -73,15 +165,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String baseUrl = API.BASE_URL;
             Log.i(TAG, "baseUrl...." + baseUrl);
 
-            mBook.book_id = "10086";
+            mBook.bookId = "10086";
 
             StringBuilder tempParams = new StringBuilder();
 
 //            tempParams.append("&");
-            tempParams.append("book_id=" + mBook.book_id);
+            tempParams.append("book_id=" + mBook.bookId);
 
             tempParams.append("&");
-            tempParams.append("name=" + mBook.name);
+            tempParams.append("name=" + mBook.detail);
 
             tempParams.append("&");
             tempParams.append("detail=" + mBook.detail);
@@ -204,7 +296,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         commit = (Button) findViewById(R.id.commit);
         button = (Button) findViewById(R.id.button);
         button1 = (Button) findViewById(R.id.button1);
+        galary = findViewById(R.id.galary);
 
+        galary.setOnClickListener(this);
         commit.setOnClickListener(this);
         button.setOnClickListener(this);
         button1.setOnClickListener(this);
@@ -215,6 +309,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
+
+
         if (resultCode == RESULT_OK) {
             // Get the Uri of the selected file
             Uri uri = data.getData();
@@ -258,7 +354,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             } else {
 //        File file = new File(inputValue);
-
 //                    Luban.compress(activity,file);
                 Log.i(TAG, "上传图片");
                 Luban.compress(MainActivity.this, new File(path))
@@ -297,6 +392,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Get the file instance
             // File file = new File(path);
             // Initiate the upload
+        } else if (resultCode == 1) {
+            Toast.makeText(this, "settings", Toast.LENGTH_LONG).show();
+
         }
 
     }
@@ -331,6 +429,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     // Potentially direct the user to the Market with a Dialog
                     Toast.makeText(this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
                 }
+
+
+                break;
+            case R.id.galary:
+                //跳转 图片浏览器
+
+                GalaryRecycleViewActivity.start(this);
 
 
                 break;
@@ -382,8 +487,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Book BookConsermer() {
         mBook = new Book();
-        mBook.book_id = "";
-        mBook.name = getName();
+        mBook.bookId = "";
+        mBook.url = getName();
         mBook.detail = getDetail();
         mBook.number = getNumber();
         return mBook;
@@ -458,5 +563,105 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return type;
     }
 
+
+    public void requestLoaction(Activity mActivity) {
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "run: ");
+//                if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {// 没有权限。
+                if (ActivityCompat.shouldShowRequestPermissionRationale(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+                    ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
+                } else {
+                    // 申请授权。
+                    ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
+                }
+//                } else {
+                Log.i(TAG, "run: ");
+//                    Intent intent = new Intent(mActivity, MainActivity.class);
+//                    startActivity(intent);
+//                    finish();
+//                }
+
+            }
+
+        }, 1500);
+    }
+
+
+    private void initLocation(Activity mActivity) {
+        LocationUtils_new.getInstance(mActivity).initLocation(new LocationHelper() {
+            @Override
+            public void UpdateLocation(Location location) {
+                Log.e("MoLin", "location.getLatitude():" + location.getLatitude());
+                et_name.append(location.getLatitude() + "");
+                et_name.append(location.getLongitude() + "");
+            }
+
+            @Override
+            public void UpdateStatus(String provider, int status, Bundle extras) {
+            }
+
+            @Override
+            public void UpdateGPSStatus(GpsStatus pGpsStatus) {
+
+            }
+
+            @Override
+            public void UpdateLastLocation(Location location) {
+                Log.e("MoLin", "UpdateLastLocation_location.getLatitude():" + location.getLatitude());
+                et_name.append(location.getLatitude() + "");
+                et_name.append(location.getLongitude() + "");
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        try {
+//            Intent intent = new Intent();
+//            intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
+//            intent.putExtra("LauncherUI.From.Scaner.Shortcut", true);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent.setAction("android.intent.action.VIEW");
+//            startActivity(intent);
+//        } catch (Exception e) {
+//        }
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.e("MoLin", "已获取权限!");
+//                    initLocation(MainActivity.this);
+                    AMapUtils.getInstance(getApplicationContext())
+                            .requestLocationUpdates();
+                } else {
+                    if (EasyPermissionsEx.somePermissionPermanentlyDenied(this, mNeedPermissionsList)) {
+                        EasyPermissionsEx.goSettings2Permissions(this, "需要定位权限来获取当地天气信息,但是该权限被禁止,你可以到设置中更改"
+                                , "去设置", 1);
+                    }
+                }
+            }
+            break;
+
+        }
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        // 在页面销毁时取消定位监听
+        LocationUtils_new.getInstance(this).removeLocationUpdatesListener();
+        super.onDestroy();
+    }
 
 }

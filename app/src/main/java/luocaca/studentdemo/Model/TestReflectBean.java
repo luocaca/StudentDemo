@@ -1,10 +1,12 @@
 package luocaca.studentdemo.Model;
 
+import android.util.Log;
+
 /**
  * Created by Administrator on 2017/10/15 0015.
  */
 
-public class Book {
+public class TestReflectBean {
     //{"bookId":7065,
     // "number":0,
     // "detail":"安卓手机图片上传",
@@ -16,7 +18,22 @@ public class Book {
     public String url;
 
 
+    private TestReflectBean() {
 
+    }
+
+    private void setNumber(String num) {
+        this.number = num;
+        Log.i("TestReflectBean", "TestReflectBean: ");
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public String getBookId() {
+        return bookId;
+    }
 
 
 }
