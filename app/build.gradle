@@ -5,7 +5,7 @@ android {
         debug {
             keyAlias 'android'
             keyPassword 'android'
-            storeFile file('C:/Users/android/studioWorkPace/StudentDemo/app/keystore/debugkeystore.jks')
+            storeFile file('keystore/debugkeystore.jks')
             storePassword 'android'
         }
     }
