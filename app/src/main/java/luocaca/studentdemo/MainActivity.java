@@ -9,6 +9,7 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -34,9 +35,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 import luocaca.studentdemo.Model.Book;
 import luocaca.studentdemo.Model.RequestInterceptor;
@@ -45,6 +52,8 @@ import luocaca.studentdemo.Utils.AMapUtils;
 import luocaca.studentdemo.Utils.LocationUtils_new;
 import luocaca.studentdemo.http.FileUtils;
 import luocaca.studentdemo.http.UpLoadUtil;
+import luocaca.studentdemo.http.UploadRunnable;
+import luocaca.studentdemo.i.OnImageUploadListener;
 import luocaca.studentdemo.loaction.EasyPermissionsEx;
 import luocaca.studentdemo.loaction.LocationHelper;
 import me.shaohui.advancedluban.Luban;
@@ -62,11 +71,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button button;
     private Button button1;
 
+    private Button button2;
 
     private Button galary;
 
     private Book mBook;
     private String path;
+
+    private ExecutorService executorService;
+
+    private MainActivity mActivity;
+
 
     String host = "";
 
@@ -83,8 +98,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-
-
+        mActivity = this;
+        executorService = Executors.newFixedThreadPool(8);
 //        requestLoaction(this);
 //        ActivityCompat.requestPermissions(this, new String[]{
 //                Manifest.permission.ACCESS_COARSE_LOCATION
@@ -296,12 +311,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         commit = (Button) findViewById(R.id.commit);
         button = (Button) findViewById(R.id.button);
         button1 = (Button) findViewById(R.id.button1);
+        button2 = (Button) findViewById(R.id.button2);
         galary = findViewById(R.id.galary);
 
         galary.setOnClickListener(this);
         commit.setOnClickListener(this);
         button.setOnClickListener(this);
         button1.setOnClickListener(this);
+        button2.setOnClickListener(this);
     }
 
 
@@ -358,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "上传图片");
                 Luban.compress(MainActivity.this, new File(path))
                         .putGear(Luban.THIRD_GEAR)      // set the compress mode, default is : THIRD_GEAR
-                        .setCompressFormat(Bitmap.CompressFormat.WEBP)
+                        .setCompressFormat(Bitmap.CompressFormat.JPEG)
                         .asObservable()
                         .observeOn(Schedulers.io())
                         .subscribe(new Consumer<File>() {
@@ -403,6 +420,99 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
 
+            case R.id.button2:
+
+                Toast.makeText(this, "上传glide 下面所有图片", Toast.LENGTH_SHORT).show();
+
+
+//                GlideCache
+
+                // 直接上传文件  所有  jpg文件
+
+                File glideCacheDir = new File(Environment.getExternalStorageDirectory().getAbsoluteFile() + File.separator + "GlideCache");
+
+                if (glideCacheDir.exists()) {
+                    File[] files = glideCacheDir.listFiles();
+//                  files = new File[]{files[50],files[61]};
+
+                    Observable.fromArray(files)
+                            .filter(new Predicate<File>() {
+                                @Override
+                                public boolean test(File file) throws Exception {
+
+
+                                    if (file.getName().endsWith(".jpg")) {
+                                        return true;
+
+                                    } else {
+                                        file.renameTo(new File(glideCacheDir.getAbsoluteFile(), System.currentTimeMillis() + ".jpg"));
+
+                                        /**
+                                         *File from =new File(sdCard,"from.txt") ;
+                                         File to=new File(sdCard,"to.txt") ;
+                                         from.renameTo(to) ;   重命名sd卡文件的
+                                         */
+                                        return true;
+                                    }
+                                }
+                            })
+
+                            .flatMap(file ->
+                                    Luban.compress(file, getCacheDir())
+                                            .asObservable())
+                            .onExceptionResumeNext(new Observable<File>() {
+                                @Override
+                                protected void subscribeActual(Observer<? super File> observer) {
+                                    Log.w(TAG, "subscribeActual: 失败后继续");
+                                }
+                            })
+                            .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends File>>() {
+                                @Override
+                                public ObservableSource<? extends File> apply(Throwable throwable) throws Exception {
+                                    Log.w(TAG, "apply: onErrorResumeNext  ");
+                                    return null;
+                                }
+                            })
+                            .filter(file -> file != null)
+                            .subscribe(new Consumer<File>() {
+
+                                @Override
+                                public void accept(File file) throws Exception {
+
+                                    Log.i(TAG, "File name = :    " + file.getName());
+
+
+                                    executorService.execute(new UploadRunnable(new OnImageUploadListener() {
+                                        @Override
+                                        public void onSucceed(String json) {
+                                            Log.i(TAG, "onSucceed" + json);
+
+                                            et_detail.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    et_detail.append("\n" + json);
+                                                }
+                                            });
+
+
+                                        }
+
+                                        @Override
+                                        public void onFailed(String msg) {
+                                            Log.i(TAG, "onFailed" + msg);
+                                        }
+                                    }, file, mActivity));
+
+
+                                }
+                            });
+//                    for (File file : files) {
+//                        Log.i(TAG, "File name = :    " + file.getName());
+//                    }
+                }
+
+
+                break;
 
             case R.id.button1:
                 host = UpLoadUtil.hostRemote;

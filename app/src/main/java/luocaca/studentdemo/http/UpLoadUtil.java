@@ -23,7 +23,7 @@ import java.util.Map;
 public class UpLoadUtil {
 
 
-    public static final String hostLocal = "http://192.168.0.13:81/hello-ssm";
+    public static final String hostLocal = "http://192.168.1.89:81/hello-ssm";
     public static final String hostRemote = "http://www.luocaca.cn/hello-ssm";
 
     public static String testUploadImage(String fileName, String host, Context activity) {

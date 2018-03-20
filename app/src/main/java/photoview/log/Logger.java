@@ -16,7 +16,7 @@
 package photoview.log;
 
 /**
- * interface for a logger class to replace the static calls to {@link android.util.Log}
+ * i for a logger class to replace the static calls to {@link android.util.Log}
  */
 public interface Logger {
 
