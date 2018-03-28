@@ -2,15 +2,19 @@ package luocaca.studentdemo;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.location.GpsStatus;
 import android.location.Location;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -22,6 +26,7 @@ import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
+import com.example.maventest.EsayVideoEditActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -91,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             , Manifest.permission.WRITE_EXTERNAL_STORAGE
             , Manifest.permission.ACCESS_FINE_LOCATION
     };
+    private Button testvideo;
+    private Button video_select;
 
 
     @Override
@@ -99,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         initView();
         mActivity = this;
-        executorService = Executors.newFixedThreadPool(8);
+        executorService = Executors.newFixedThreadPool(10);
 //        requestLoaction(this);
 //        ActivityCompat.requestPermissions(this, new String[]{
 //                Manifest.permission.ACCESS_COARSE_LOCATION
@@ -312,6 +319,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button = (Button) findViewById(R.id.button);
         button1 = (Button) findViewById(R.id.button1);
         button2 = (Button) findViewById(R.id.button2);
+        testvideo = (Button) findViewById(R.id.testvideo);
+        video_select = (Button) findViewById(R.id.video_select);
         galary = findViewById(R.id.galary);
 
         galary.setOnClickListener(this);
@@ -319,6 +328,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button.setOnClickListener(this);
         button1.setOnClickListener(this);
         button2.setOnClickListener(this);
+        testvideo.setOnClickListener(this);
+        video_select.setOnClickListener(this);
     }
 
 
@@ -327,6 +338,75 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         super.onActivityResult(requestCode, resultCode, data);
 
+
+        if (requestCode == 101 && resultCode == RESULT_OK) {
+            Toast.makeText(mActivity, "选择成功", Toast.LENGTH_SHORT).show();
+
+            // Get the Uri of the selected file
+            Uri uri = data.getData();
+            Log.d(TAG, "File Uri: " + uri.toString());
+            // Get the path
+            path = null;
+//            try {
+//                path = FileUtils.getVideoPath(this, uri);
+//            } catch (URISyntaxException e) {
+//                e.printStackTrace();
+//            }
+
+            ContentResolver cr = this.getContentResolver();
+            /** 数据库查询操作。
+             * 第一个参数 uri：为要查询的数据库+表的名称。
+             * 第二个参数 projection ： 要查询的列。
+             * 第三个参数 selection ： 查询的条件，相当于SQL where。
+             * 第三个参数 selectionArgs ： 查询条件的参数，相当于 ？。
+             * 第四个参数 sortOrder ： 结果排序。
+             */
+            Cursor cursor = cr.query(uri, null, null, null, null);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    // 视频ID:MediaStore.Audio.Media._ID
+                    int videoId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
+                    // 视频名称：MediaStore.Audio.Media.TITLE
+                    String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE));
+                    // 视频路径：MediaStore.Audio.Media.DATA
+                    String videoPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+                    // 视频时长：MediaStore.Audio.Media.DURATION
+                    int duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
+                    // 视频大小：MediaStore.Audio.Media.SIZE
+                    long size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
+
+                    // 视频缩略图路径：MediaStore.Images.Media.DATA
+                    String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                    path = imagePath ;
+                    // 缩略图ID:MediaStore.Audio.Media._ID
+                    int imageId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                    // 方法一 Thumbnails 利用createVideoThumbnail 通过路径得到缩略图，保持为视频的默认比例
+                    // 第一个参数为 ContentResolver，第二个参数为视频缩略图ID， 第三个参数kind有两种为：MICRO_KIND和MINI_KIND 字面意思理解为微型和迷你两种缩略模式，前者分辨率更低一些。
+                    Bitmap bitmap1 = MediaStore.Video.Thumbnails.getThumbnail(cr, imageId, MediaStore.Video.Thumbnails.MICRO_KIND, null);
+
+                    // 方法二 ThumbnailUtils 利用createVideoThumbnail 通过路径得到缩略图，保持为视频的默认比例
+                    // 第一个参数为 视频/缩略图的位置，第二个依旧是分辨率相关的kind
+                    Bitmap bitmap2 = ThumbnailUtils.createVideoThumbnail(imagePath, MediaStore.Video.Thumbnails.MICRO_KIND);
+                    // 如果追求更好的话可以利用 ThumbnailUtils.extractThumbnail 把缩略图转化为的制定大小
+//                        ThumbnailUtils.extractThumbnail(bitmap, width,height ,ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+
+                }
+                cursor.close();
+            }
+
+
+
+            Log.d(TAG, "File Path: " + path);
+
+
+
+
+
+
+            return;
+
+
+        }
 
         if (resultCode == RESULT_OK) {
             // Get the Uri of the selected file
@@ -413,53 +493,113 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this, "settings", Toast.LENGTH_LONG).show();
 
         }
-
     }
+
+
+    int count = 0;
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
 
+            case R.id.video_select:
+
+//                Intent it=new Intent(Intent.ACTION_GET_CONTENT);
+//
+//                it.setType("audio/*");//选取所有的音乐类型 *有mp3、wav、mid等
+
+//                startActivityForResult(it,100);//以识别编号来启动外部程序
+
+                Intent it = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+
+// MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+
+                it.setType("video/mp4");//选取所有的视频类型 *有mp4、3gp、avi等
+
+                startActivityForResult(it, 101);//以识别编号来启动外部程序
+
+//                Intent it=new Intent(Intent.ACTION_GET_CONTENT);
+//
+//                it.setType("image/*");//选取所有的图片类型 * png和jpeg等
+//
+//                startActivityForResult(it,102);//以识别编号来启动外部程序
+//
+//                ---------------------------
+
+
+                break;
+
+            case R.id.testvideo:
+
+                String video = Environment.getExternalStorageDirectory().getPath() + File.separator
+                        + "myvideos" + File.separator + "a1.mp4";
+
+                if (new File(video).exists()) {
+                    Log.i(TAG, "存在此视频: ");
+                } else {
+                    Log.w(TAG, "不 存在此视频: ");
+                }
+
+                Intent intent1 = new Intent();
+                intent1.putExtra(EsayVideoEditActivity.PATH, path);
+                intent1.setClass(this, EsayVideoEditActivity.class);
+                startActivity(intent1);
+
+                break;
             case R.id.button2:
-
                 Toast.makeText(this, "上传glide 下面所有图片", Toast.LENGTH_SHORT).show();
-
-
 //                GlideCache
 
                 // 直接上传文件  所有  jpg文件
-
                 File glideCacheDir = new File(Environment.getExternalStorageDirectory().getAbsoluteFile() + File.separator + "GlideCache");
 
                 if (glideCacheDir.exists()) {
                     File[] files = glideCacheDir.listFiles();
 //                  files = new File[]{files[50],files[61]};
 
+                    Log.i(TAG, "一共图片 （张）: --->" + files.length);
+
+
                     Observable.fromArray(files)
                             .filter(new Predicate<File>() {
                                 @Override
                                 public boolean test(File file) throws Exception {
 
+                                    count++;
 
-                                    if (file.getName().endsWith(".jpg")) {
+                                    if (file.length() / 1024 > 40) {
+
                                         return true;
-
                                     } else {
-                                        file.renameTo(new File(glideCacheDir.getAbsoluteFile(), System.currentTimeMillis() + ".jpg"));
-
-                                        /**
-                                         *File from =new File(sdCard,"from.txt") ;
-                                         File to=new File(sdCard,"to.txt") ;
-                                         from.renameTo(to) ;   重命名sd卡文件的
-                                         */
-                                        return true;
+                                        return false;
                                     }
+
+//                                    if (file.getName().endsWith(".jpg")) {
+//
+//                                        return true;
+//
+//                                    } else if (file.getName().endsWith(".0")) {
+//
+//                                        Log.i(TAG, "test: before ---> " + file.getName());
+//
+//                                        file.renameTo(new File(glideCacheDir.getAbsoluteFile(), System.currentTimeMillis() + count + ".jpg"));
+//
+//                                        Log.i(TAG, "test: after ---> " + file.getName());
+//                                        /**
+//                                         *File from =new File(sdCard,"from.txt") ;
+//                                         File to=new File(sdCard,"to.txt") ;
+//                                         from.renameTo(to) ;   重命名sd卡文件的
+//                                         */
+//                                        return true;
+//                                    } else {
+//                                        return true;
+//                                }
                                 }
                             })
 
-                            .flatMap(file ->
-                                    Luban.compress(file, getCacheDir())
-                                            .asObservable())
+//                            .flatMap(file ->
+//                                    Luban.compress(file, getCacheDir())
+//                                            .asObservable())
                             .onExceptionResumeNext(new Observable<File>() {
                                 @Override
                                 protected void subscribeActual(Observer<? super File> observer) {
@@ -470,7 +610,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 @Override
                                 public ObservableSource<? extends File> apply(Throwable throwable) throws Exception {
                                     Log.w(TAG, "apply: onErrorResumeNext  ");
-                                    return null;
+                                    return Observable.<File>empty();
                                 }
                             })
                             .filter(file -> file != null)
@@ -479,7 +619,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 @Override
                                 public void accept(File file) throws Exception {
 
-                                    Log.i(TAG, "File name = :    " + file.getName());
+                                    Log.i(TAG, "File name = :    " + file.getName() + "  size = " + file.length() / 1024);
+
+//                                    Log.i(TAG, "accept: is delete succeed ？ " + file.delete());
 
 
                                     executorService.execute(new UploadRunnable(new OnImageUploadListener() {
@@ -493,8 +635,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                     et_detail.append("\n" + json);
                                                 }
                                             });
-
-
                                         }
 
                                         @Override
@@ -516,11 +656,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.button1:
                 host = UpLoadUtil.hostRemote;
-                Intent intent1 = new Intent(Intent.ACTION_GET_CONTENT);
-                intent1.setType("*/*");
-                intent1.addCategory(Intent.CATEGORY_OPENABLE);
+                Intent intent2 = new Intent(Intent.ACTION_GET_CONTENT);
+                intent2.setType("*/*");
+                intent2.addCategory(Intent.CATEGORY_OPENABLE);
                 try {
-                    startActivityForResult(Intent.createChooser(intent1, "Select a File to Upload"), 111);
+                    startActivityForResult(Intent.createChooser(intent2, "Select a File to Upload"), 111);
                 } catch (android.content.ActivityNotFoundException ex) {
                     // Potentially direct the user to the Market with a Dialog
                     Toast.makeText(this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
@@ -592,6 +732,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 break;
         }
+
     }
 
 

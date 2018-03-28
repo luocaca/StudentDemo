@@ -123,6 +123,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/commit" />
 
+    <Button
+        android:id="@+id/video_select"
+        android:layout_width="92dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:text="视频选择"
+        android:textColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button" />
+
 
     <Button
         android:id="@+id/button1"
@@ -149,6 +161,20 @@
         app:layout_constraintEnd_toStartOf="@+id/textView3"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/testvideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:text="测试视频"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@+id/button2"
+        app:layout_constraintEnd_toStartOf="@+id/et_detail"
+        app:layout_constraintStart_toStartOf="@+id/commit" />
 
     <Button
         android:id="@+id/button2"

@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+//apply plugin: 'com.neenbedankt.android-apt'
+//apply plugin: 'com.jakewharton.butterknife'
 
 android {
     signingConfigs {
@@ -67,4 +69,10 @@ dependencies {
     compile 'com.github.open-android:RetrofitUtils:0.1.9'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     implementation files('libs/AMap_Location_V3.7.0_20171218.jar')
+
+
+    compile project(':maventest')
+
+
+
 }

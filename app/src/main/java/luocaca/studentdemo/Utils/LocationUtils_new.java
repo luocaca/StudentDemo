@@ -121,7 +121,7 @@ public class LocationUtils_new {
                 ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        if (mLocationManager != null) {
+        if (mLocationManager != null && myLocationListener != null) {
             mLocationManager.removeUpdates(myLocationListener);
         }
     }

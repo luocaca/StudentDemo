@@ -25,7 +25,7 @@ public class UploadRunnable implements Runnable {
     @Override
     public void run() {
         if (mUploadListener != null) {
-            mUploadListener.onSucceed(UpLoadUtil.testUploadImage(mFile.getAbsolutePath(), UpLoadUtil.hostLocal, mActivity));
+            mUploadListener.onSucceed(UpLoadUtil.testUploadImage(mFile.getAbsolutePath(), UpLoadUtil.hostRemote, mActivity));
         }
     }
 

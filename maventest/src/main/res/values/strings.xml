@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">maventest</string>
+    <string name="title_activity_esay_video_edit">EsayVideoEditActivity</string>
 </resources>

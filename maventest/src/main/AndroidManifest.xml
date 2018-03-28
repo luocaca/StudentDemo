@@ -1,2 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.maventest" />
+    package="com.example.maventest">
+
+    <application>
+        <activity
+            android:name=".EsayVideoEditActivity"
+            android:label="@string/title_activity_esay_video_edit"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+    </application>
+
+</manifest>
