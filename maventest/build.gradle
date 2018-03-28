@@ -47,7 +47,8 @@ dependencies {
 
 }
 
-
+//https://blog.csdn.net/yangysng07/article/details/40930143
+//  发布命令  gradlew uploadArchives
 uploadArchives {
 
     repositories.mavenDeployer {
@@ -57,7 +58,7 @@ uploadArchives {
         pom.project {
             groupId "com.luocaca"
             artifactId "maventest"
-            version "1.0"
+            version "1.1"
         }
     }
 

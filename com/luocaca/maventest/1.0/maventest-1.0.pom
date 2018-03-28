@@ -8,8 +8,26 @@
   <packaging>aar</packaging>
   <dependencies>
     <dependency>
+      <groupId>com.github.kui92</groupId>
+      <artifactId>FFmpegLibrary</artifactId>
+      <version>3.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>com.android.support</groupId>
       <artifactId>appcompat-v7</artifactId>
+      <version>26.1.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.android.support.constraint</groupId>
+      <artifactId>constraint-layout</artifactId>
+      <version>1.0.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>design</artifactId>
       <version>26.1.0</version>
       <scope>compile</scope>
     </dependency>
