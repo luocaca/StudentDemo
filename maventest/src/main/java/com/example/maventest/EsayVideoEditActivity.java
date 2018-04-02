@@ -59,10 +59,10 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
 
     private void initViewStart() {
 //        ButterKnife.bind(this);
-          recyclerview = findViewById(R.id.recyclerview);
-          rangeBar = findViewById(R.id.rangeBar);
-          fram = findViewById(R.id.fram);
-          uVideoView = findViewById(R.id.uVideoView);
+          recyclerview = (RecyclerView) findViewById(R.id.recyclerview);
+          rangeBar = (RangeBar) findViewById(R.id.rangeBar);
+          fram = (FrameLayout) findViewById(R.id.fram);
+          uVideoView = (VideoView) findViewById(R.id.uVideoView);
     }
 
     @Override
