@@ -1,5 +1,6 @@
 package com.example.maventest;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -62,10 +63,17 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
     ExecutorService executorService = Executors.newFixedThreadPool(3);
 
 
+    public ProgressDialog dialog;
+
+
     public static OnProcessListener onProcessListener;
 
 
     private void initViewStart() {
+
+        dialog = new ProgressDialog(this);
+
+
 //        ButterKnife.bind(this);
         recyclerview = (RecyclerView) findViewById(R.id.recyclerview);
         rangeBar = (RangeBar) findViewById(R.id.rangeBar);
@@ -233,6 +241,8 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
     public void click3(View view) {
 
         onProcessListener.onStart();
+        dialog.show();
+        dialog.setMessage("裁剪视频中...");
 
         uVideoView.stopPlayback();
         File file = new File(videoResutlDir);
@@ -252,8 +262,10 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
                         if (!b) {
                             re = "裁剪视频失败";
                             onProcessListener.onFailed("裁剪视频失败");
+                            dialog.setMessage("裁剪视频失败...");
                         } else {
                             onProcessListener.onClipSuccess(s1);//裁剪 成功
+                            dialog.setMessage("正在压缩视频,可能耗时比较久，请耐心等候....");
                             videoResutl = s1;
                             File file = new File(videoResutl);
                             if (file.exists()) {
@@ -281,9 +293,11 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
 
                                                 if (!b) {
                                                     result = "压缩失败";
+                                                    dialog.setMessage("压缩失败...");
                                                     onProcessListener.onFailed("压缩失败");
 
                                                 } else {
+                                                    dialog.setMessage("压缩完成...");
                                                     result = "压缩完成";
                                                     onProcessListener.onCompressSuccess(s1);
                                                     if (isOk2Finish) {
@@ -301,6 +315,7 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
                             } else {
 //                                Toast.makeText(EsayVideoEditActivity.this, "未找到裁剪后的视频", Toast.LENGTH_SHORT).show();
                                 onProcessListener.onFailed("未找到裁剪后的视频");
+                                dialog.setMessage("未找到裁剪后的视频...");
                             }
 
 
@@ -421,8 +436,10 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
 
     @Override
     protected void onDestroy() {
+        dialog.dismiss();
         super.onDestroy();
         uVideoView.stopPlayback();
+
         //最后不要忘了删除这个临时文件夹 parentPath
         //不然时间长了会在手机上生成大量不用的图片，该activity销毁后这个文件夹就用不到了
         //如果内存大，任性不删也可以
