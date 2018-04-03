@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
 import com.example.maventest.EsayVideoEditActivity;
+import com.example.maventest.OnProcessListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -377,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     // 视频缩略图路径：MediaStore.Images.Media.DATA
                     String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-                    path = imagePath ;
+                    path = imagePath;
                     // 缩略图ID:MediaStore.Audio.Media._ID
                     int imageId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
                     // 方法一 Thumbnails 利用createVideoThumbnail 通过路径得到缩略图，保持为视频的默认比例
@@ -395,18 +396,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
 
-
             Log.d(TAG, "File Path: " + path);
-
-
-
-
 
 
             return;
 
 
         }
+
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            Toast.makeText(mActivity, "RESULT_OK", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
 
         if (resultCode == RESULT_OK) {
             // Get the Uri of the selected file
@@ -510,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 //                startActivityForResult(it,100);//以识别编号来启动外部程序
 
-                Intent it = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+                Intent it = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
 
 // MediaStore.Video.Media.EXTERNAL_CONTENT_URI
 
@@ -531,6 +533,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.testvideo:
 
+                EsayVideoEditActivity.onProcessListener = new OnProcessListener() {
+                    @Override
+                    public void onStart() {
+                        et_detail.append("开始" );
+                        Log.i(TAG, "onStart: ");
+                    }
+
+                    @Override
+                    public void onClipSuccess(String path) {
+                        Log.i(TAG, "onClipSuccess: " + path);
+                        et_detail.append("裁剪成功" + path);
+                    }
+
+                    @Override
+                    public void onCompressSuccess(String path) {
+                        Log.i(TAG, "onCompressSuccess: " + path);
+
+
+                        et_detail.append("压缩成功" + path);
+
+                    }
+
+                    @Override
+                    public void onFailed(String msg) {
+                        et_detail.append("压缩失败" + msg);
+                        Log.i(TAG, "onFailed: " + msg);
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        et_detail.append("压缩结束");
+                        Log.i(TAG, "onFinish: ");
+                    }
+                };
+
+
                 String video = Environment.getExternalStorageDirectory().getPath() + File.separator
                         + "myvideos" + File.separator + "a1.mp4";
 
@@ -543,7 +581,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent1 = new Intent();
                 intent1.putExtra(EsayVideoEditActivity.PATH, path);
                 intent1.setClass(this, EsayVideoEditActivity.class);
-                startActivity(intent1);
+                EsayVideoEditActivity.isOk2Finish = true;
+                startActivityForResult(intent1, 100);
 
                 break;
             case R.id.button2:
