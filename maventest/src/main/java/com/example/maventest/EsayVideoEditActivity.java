@@ -243,6 +243,8 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
         onProcessListener.onStart();
         dialog.show();
         dialog.setMessage("裁剪视频中...");
+        dialog.setCanceledOnTouchOutside(false);
+
 
         uVideoView.stopPlayback();
         File file = new File(videoResutlDir);
@@ -446,4 +448,12 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
     }
 
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        dialog.dismiss();
+
+//        Toast.makeText(this, "在后台压缩中...", Toast.LENGTH_SHORT).show();
+
+    }
 }
