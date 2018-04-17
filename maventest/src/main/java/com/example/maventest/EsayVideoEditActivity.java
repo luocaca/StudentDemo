@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.esay.ffmtool.FfmpegTool;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -182,20 +183,34 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
                         file1.mkdirs();
                     }
                     // +" -s 1920*1080 "
-                    ffmpegTool.compressVideo(videoResutl + " -s 544*960 ", path + File.separator, 3, new FfmpegTool.VideoResult() {
-                        @Override
-                        public void clipResult(int i, String s, String s1, boolean b, int i1) {
-                            String result = "压缩完成";
-                            if (!b) {
-                                result = "压缩失败";
+                    ffmpegTool.compressVideo(videoResutl + " -s 544*960 ", path + File.separator, 3,
+                            new FfmpegTool.VideoResult() {
+                                @Override
+                                public void clipResult(int i, String s, String s1, boolean b, int i1) {
+                                    String result = "压缩完成";
+                                    if (!b) {
+                                        result = "压缩失败";
+                                    }
+                                    Log.i("click2", "s:" + s);//压缩前的视频
+                                    Log.i("click2", "s1:" + s1);//压缩后的视频
+
+
+                                    Toast.makeText(EsayVideoEditActivity.this, result, Toast.LENGTH_SHORT).show();
+                                }
+                            },
+                            new FfmpegTool.CompressCallback() {
+                                @Override
+                                public void onCompress(final int current, final int total) {
+                                    Log.i("onCompress", "java 回调 ---  : " + current + "  /  " + total);
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dialog.setMessage("处理中,请稍候 " + deciMal(current, total) + "%");
+                                        }
+                                    });
+                                }
                             }
-                            Log.i("click2", "s:" + s);//压缩前的视频
-                            Log.i("click2", "s1:" + s1);//压缩后的视频
-
-
-                            Toast.makeText(EsayVideoEditActivity.this, result, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    );
                 }
             });
         } else {
@@ -309,6 +324,18 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
 
                                                 }
 
+
+                                            }
+                                        }, new FfmpegTool.CompressCallback() {
+                                            @Override
+                                            public void onCompress(final int current, final int total) {
+                                                Log.i("onCompress", "java 回调 ---  : " + current + "  /  " + total);
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        dialog.setMessage("处理中,请稍候 " + deciMal(current, total) + "%");
+                                                    }
+                                                });
 
                                             }
                                         });
@@ -456,4 +483,14 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
 //        Toast.makeText(this, "在后台压缩中...", Toast.LENGTH_SHORT).show();
 
     }
+
+
+    /* --- 获取百分比 --- */
+    public static int deciMal(int current, int total) {
+        double result = new BigDecimal((float) current / total).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+        Log.e("返回的两位数", result + "'");
+        return (int) (result * 100);
+    }
+
 }
