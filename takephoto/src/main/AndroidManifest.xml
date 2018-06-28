@@ -1,0 +1,13 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ndk.darren.com.takephoto">
+
+
+    <application>
+        <activity android:name=".TakePhotoActivity" />
+    </application>
+
+
+</manifest>
+
+
+

@@ -1,1 +1,1 @@
-include ':app' ,"maventest"
+include ':app', ':takephoto', ':regulardemo' ,"maventest"

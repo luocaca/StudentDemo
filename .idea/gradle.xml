@@ -3,13 +3,16 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleHome" value="D:/Users/Administrator/.gradle" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/maventest" />
+            <option value="$PROJECT_DIR$/regulardemo" />
+            <option value="$PROJECT_DIR$/takephoto" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

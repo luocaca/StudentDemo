@@ -2,10 +2,12 @@ package luocaca.studentdemo.config;
 
 import android.content.Context;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.Registry;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory;
 import com.bumptech.glide.module.GlideModule;
@@ -39,7 +41,10 @@ public class GlideCache implements GlideModule {
         Log.e("GlideCache", "applyOptions: 配置glide");
     }
 
+
+
     @Override
-    public void registerComponents(Context context, Glide glide) {
+    public void registerComponents(@NonNull Context context, @NonNull Glide glide, @NonNull Registry registry) {
+
     }
 }

@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -21,9 +23,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 
 import java.io.File;
@@ -285,20 +291,30 @@ public class ViewBigImageActivity extends FragmentActivity implements OnPageChan
 
             spinner.setVisibility(View.VISIBLE);
             spinner.setClickable(false);
-            Glide.with(ViewBigImageActivity.this).load(imageUrl)
-                    .crossFade(700)
-                    .listener(new RequestListener<String, GlideDrawable>() {
+
+
+            RequestOptions options = new RequestOptions()
+                    .centerCrop()
+                    .placeholder(R.mipmap.ic_launcher_round)
+                    .error(R.mipmap.ic_launcher_round)
+                    .priority(Priority.HIGH)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL);
+
+            Glide.with(ViewBigImageActivity.this)
+                    .applyDefaultRequestOptions(options)
+                    .load(imageUrl)
+                    .thumbnail(Glide.with(ViewBigImageActivity.this).load(imageUrl))
+                    .listener(new RequestListener<Drawable>() {
                         @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                             Toast.makeText(getApplicationContext(), "资源加载异常", Toast.LENGTH_SHORT).show();
                             spinner.setVisibility(View.GONE);
                             return false;
                         }
 
-                        //这个用于监听图片是否加载完成
                         @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-//                            Toast.makeText(getApplicationContext(), "图片加载完成", Toast.LENGTH_SHORT).show();
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            //                            Toast.makeText(getApplicationContext(), "图片加载完成", Toast.LENGTH_SHORT).show();
                             spinner.setVisibility(View.GONE);
 
                             /**这里应该是加载成功后图片的高*/
@@ -312,7 +328,8 @@ public class ViewBigImageActivity extends FragmentActivity implements OnPageChan
                             }
                             return false;
                         }
-                    }).into(zoom_image_view);
+                    })
+                    .into(zoom_image_view);
 
             zoom_image_view.setOnPhotoTapListener(ViewBigImageActivity.this);
             container.addView(view, 0);

@@ -62,6 +62,7 @@ import luocaca.studentdemo.http.UploadRunnable;
 import luocaca.studentdemo.i.OnImageUploadListener;
 import luocaca.studentdemo.loaction.EasyPermissionsEx;
 import luocaca.studentdemo.loaction.LocationHelper;
+import luocaca.studentdemo.ui.MyTakePhotoActivity;
 import me.shaohui.advancedluban.Luban;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -954,4 +955,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
     }
 
+    public void testPhoto(View view) {
+
+//        TakePhotoActivity.start(this);
+        MyTakePhotoActivity.start(this);
+
+
+    }
 }

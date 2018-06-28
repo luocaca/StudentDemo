@@ -19,6 +19,20 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.054" />
 
+
+    <Button
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="测试7.0拍照"
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@color/colorPrimary"
+        android:textColor="@android:color/white"
+
+        android:onClick="testPhoto"
+        />
+
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"

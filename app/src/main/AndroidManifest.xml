@@ -3,6 +3,14 @@
     package="luocaca.studentdemo">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
 
     <!--高德-->
@@ -51,6 +59,7 @@
         <activity
             android:name=".viewbigimage.ViewBigImageActivity"
             android:theme="@style/full" />
+        <activity android:name=".ui.MyTakePhotoActivity" />
 
 
         <meta-data
@@ -69,6 +78,17 @@
 
         <!--定位服务-->
 
+
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="luocaca.studentdemo.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"></meta-data>
+        </provider>
 
     </application>
 

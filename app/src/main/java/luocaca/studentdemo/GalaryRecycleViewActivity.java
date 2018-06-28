@@ -17,7 +17,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.itheima.retrofitutils.ItheimaHttp;
 
 import org.itheima.recycler.adapter.BaseLoadMoreRecyclerAdapter;
@@ -64,7 +66,7 @@ public class GalaryRecycleViewActivity extends AppCompatActivity {
         Class clazz = null;
         try {
             clazz = Class.forName("com.itheima.retrofitutils.HttpHelper");
-                     //            HttpHelper helper = (HttpHelper) clazz.newInstance();
+            //            HttpHelper helper = (HttpHelper) clazz.newInstance();
 //          Field field = clazz.getField("sBaseUrl");
             Field field = clazz.getDeclaredField("sBaseUrl");
             field.setAccessible(true);
@@ -83,8 +85,6 @@ public class GalaryRecycleViewActivity extends AppCompatActivity {
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
-
-
 
 
         layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -202,10 +202,16 @@ public class GalaryRecycleViewActivity extends AppCompatActivity {
             }
 
 
+            RequestOptions options = new RequestOptions()
+                    .centerCrop()
+                    .placeholder(R.mipmap.ic_launcher_round)
+                    .error(R.mipmap.ic_launcher_round)
+                    .priority(Priority.HIGH)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL);
+
 //            tvTitle.setText(mData.url);
-            Glide.with(mContext).load(mData.url)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(R.mipmap.ic_launcher_round).crossFade().into(imageView);
+            Glide.with(mContext).applyDefaultRequestOptions(options).load(mData.url).into(imageView);
+
 
             imageView.setOnClickListener(v -> {
                 Toast.makeText(mContext, "id=" + mData.url, Toast.LENGTH_SHORT).show();

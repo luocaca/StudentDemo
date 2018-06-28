@@ -1,4 +1,4 @@
-package luocaca.studentdemo;
+package ndk.darren.com.takephoto;
 
 import org.junit.Test;
 

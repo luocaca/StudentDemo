@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/multy_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="多图选择" />
+
+
+    <Button
+        android:id="@+id/djpz"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="点击拍照" />
+
+    <Button
+        android:id="@+id/djcj"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="点击裁剪" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="拍照照片" />
+
+    <ImageView
+        android:id="@+id/take"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+
+
+    <TextView
+        android:id="@+id/log"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="裁剪后的照片" />
+
+    <ImageView
+        android:id="@+id/clip"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+
+</LinearLayout>

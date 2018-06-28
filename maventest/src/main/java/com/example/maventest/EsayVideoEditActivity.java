@@ -1,6 +1,8 @@
 package com.example.maventest;
 
 import android.app.ProgressDialog;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +21,7 @@ import com.esay.ffmtool.FfmpegTool;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -103,6 +106,28 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
 
 
         videoPath = getIntent().getStringExtra(PATH);
+
+//        MediaPlayer mediaPlayer = getVideoMediaPlayer(file);
+//        long duration = mediaPlayer == null ? 0 : mediaPlayer.getDuration();
+//        int height = mediaPlayer == null ? 0 : mediaPlayer.getVideoHeight();
+//        int width = mediaPlayer == null ? 0 : mediaPlayer.getVideoWidth();
+//        getPlayTime(videoPath);
+        Log.i("video d  --- > ", getVideoMediaPlayer(new File(videoPath)).getDuration() + "");
+        Log.i("video w  --- > ", getVideoMediaPlayer(new File(videoPath)).getVideoWidth() + "");
+        Log.i("video Height  --- > ", getVideoMediaPlayer(new File(videoPath)).getVideoHeight() + "");
+
+
+        String st = String.format("长 %s 宽 %s 高 %s ",
+                getVideoMediaPlayer(new File(videoPath)).getDuration(),
+                getVideoMediaPlayer(new File(videoPath)).getVideoWidth(),
+                getVideoMediaPlayer(new File(videoPath)).getVideoHeight());
+
+//        getBestParams(videoPath);
+
+
+//        Toast.makeText(this, st + "   \nbest w h = " + getBestParams(videoPath), Toast.LENGTH_LONG).show();
+
+
         Log.i("onCreate", "videoPath:" + videoPath);
         if (!new File(videoPath).exists()) {
             Toast.makeText(this, "视频文件不存在", Toast.LENGTH_LONG).show();
@@ -129,6 +154,88 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
         });
         initView();
         initData();
+    }
+
+    private String getBestParams(String videoPath) {
+
+
+        try {
+//            String st = String.format("长 %s 宽 %s 高 %s ",
+//                    getVideoMediaPlayer(new File(videoPath)).getDuration(),
+//                    getVideoMediaPlayer(new File(videoPath)).getVideoWidth(),
+//                    getVideoMediaPlayer(new File(videoPath)).getVideoHeight());
+//            Toast.makeText(this, st, Toast.LENGTH_LONG).show();
+
+            MediaPlayer mediaPlayer = getVideoMediaPlayer(new File(videoPath));
+
+            if (mediaPlayer != null) {
+                int duration = mediaPlayer.getDuration();
+                int width = mediaPlayer.getVideoWidth();
+                int height = mediaPlayer.getVideoHeight();
+
+                /* 计算获取 最适合的 宽高  与比例 */
+
+                if (width > height) {
+                    // 宽 大于 高  横屏
+                    /**
+                     * ----------
+                     * |
+                     * |---------
+                     */
+                    //    计算比例
+                    double ratio = deciMal(height, width) / 100;
+
+                    /*根据比例计算   */
+                    /* 当宽度大于960  按照960 进行缩放 */
+
+                    if (width > 960) {
+                        width = 960;
+                        // for excample 1080 / 960 =
+                        height = (int) (ratio * 960);
+                    } else {
+                        /* 小于 == 960  不处理   */
+                    }
+
+                    /* 小于960  就 用 原来的   */
+
+                } else {
+
+                    // 1080 * 1920
+                    // <
+                    /**
+                     * -----
+                     * |
+                     * |
+                     * |
+                     * |
+                     * -----
+                     */
+                    /* 高 > 宽 竖屏 */
+
+                    double ratio = deciMal1(width, height);
+                    double radi = (double) width / (double) height;
+                    if (height > 960) {
+                        height = 960;
+                        // for excample 1080 / 960 =
+                        width = (int) (ratio * 960);
+                    } else {
+                        /* 小于 == 960  不处理   */
+                    }
+
+
+                }
+
+                return width + "*" + height;
+
+
+            } else {
+                return "544*960";//默认竖屏
+            }
+
+        } catch (Exception e) {
+            Log.w("获取失败", "getBestParams: ");
+            return "544*960";//默认竖屏
+        }
     }
 
 
@@ -298,7 +405,11 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
                                             file1.mkdirs();
                                         }
                                         // +" -s 1920*1080 "
-                                        ffmpegTool.compressVideo(videoResutl + " -s 544*960 ", path + File.separator, 3, new FfmpegTool.VideoResult() {
+
+                                        /* 960*544  横屏 正常尺寸 */
+                                        /* 544*960  竖屏 正常比例 */
+
+                                        ffmpegTool.compressVideo(videoResutl + " -s " + getBestParams(videoPath) + " ", path + File.separator, 3, new FfmpegTool.VideoResult() {
                                             @Override
                                             public void clipResult(int i, String s, String s1, boolean b, int i1) {
                                                 String result = "压缩完成";
@@ -485,6 +596,48 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
     }
 
 
+    private void getPlayTime(String mUri) {
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null) {
+                HashMap<String, String> headers = null;
+                if (headers == null) {
+                    headers = new HashMap<String, String>();
+                    headers.put("User-Agent", "Mozilla/5.0 (Linux; U; Android 4.4.2; zh-CN; MW-KW-001 Build/JRO03C) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.001 U4/0.8.0 Mobile Safari/533.1");
+                }
+                mmr.setDataSource(mUri, headers);
+            } else {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+
+            String duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+            String width = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);//宽
+            String height = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);//高
+            String rotation = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);//高
+
+            Toast.makeText(this, "playtime:" + duration + "w=" + width + "h=" + height +" rotation = "+ rotation, Toast.LENGTH_SHORT).show();
+
+
+            Log.i("detail --->", "getPlayTime: duration= " + duration + "  width" + width + " height = " + height +" rotation = "+ rotation);
+
+        } catch (Exception ex) {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+
+    }
+
+    private MediaPlayer getVideoMediaPlayer(File file) {
+        try {
+            return MediaPlayer.create(this, Uri.fromFile(file));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     /* --- 获取百分比 --- */
     public static int deciMal(int current, int total) {
         double result = new BigDecimal((float) current / total).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -492,5 +645,14 @@ public class EsayVideoEditActivity extends AppCompatActivity implements RangeBar
         Log.e("返回的两位数", result + "'");
         return (int) (result * 100);
     }
+
+    public static double deciMal1(int current, int total) {
+        double result = new BigDecimal((float) current / total).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+        Log.e("返回的两位数", result + "'");
+        return result;
+    }
+
+
 
 }
